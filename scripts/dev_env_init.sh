@@ -9,6 +9,6 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )/.." >/dev/null 2>&1 && pwd )"
 cd $DIR
 echo "creating default environment variables"
-copy ./scripts/.env.template ./.env
+cp ./scripts/.env.template ./.env
 echo "install pip dependencies"
 pipenv install
