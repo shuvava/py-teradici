@@ -9,6 +9,7 @@ pylint = "*"
 [packages]
 fastapi = {extras = ["all"],version = "*"}
 psycopg2-binary = "*"
+redis = "*"
 
 [requires]
 python_version = "3.8"

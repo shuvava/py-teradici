@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:5.0.4
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+  web:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://127.0.0.1:80/health/isAlive" ]
+      interval: 1s
+      timeout: 3s
+      retries: 60
+    hostname: rest-api
+    environment:
+      - WEBAPP__DEFAULT__CACHE_CONNECTION_STRING=redis
+    ports:
+      - "8080:80"
+    links:
+      - redis
+    depends_on:
+      - redis

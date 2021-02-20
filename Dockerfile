@@ -8,11 +8,11 @@ WORKDIR /app
 COPY ./app ./app
 COPY ./requirements.txt ./
 RUN pip install -r requirements.txt
-COPY ./run.sh .
+COPY app/run.sh .
 RUN chmod +x run.sh
 RUN echo $APP_VERSION > ./app/version.txt
 
-ENV REDIS_HOST=redis
+ENV WEBAPP__DEFAULT__CACHE_CONNECTION_STRING=redis
 ENV APP_PORT=$APP_PORT
 
 ENTRYPOINT [ "./run.sh" ]

@@ -12,11 +12,5 @@ cd $DIR
 set -a
 [ -f .env ] && . .env
 set +a
-# set variables
-: "${DOCKER_REGESTRY:="$DEFAULT_DOCKER_REGESTRY"}"
-IMAGE_TAG="$($DIR/scripts/git-version.sh)"
-TAG=$DOCKER_REGESTRY/$IMAGE_ID:$IMAGE_TAG
 
-echo run docker image $TAG
-
-docker run -it --rm -p 80:8080 $TAG $1
+docker run -it --rm -p 6379:6379 redis:5.0.4
