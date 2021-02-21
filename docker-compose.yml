@@ -18,7 +18,7 @@ services:
       retries: 60
     hostname: rest-api
     environment:
-      - WEBAPP__DEFAULT__CACHE_CONNECTION_STRING=redis
+      - WEBAPP__DEFAULT__CACHE_CONNECTION_STRING=redis://redis:6379
     ports:
       - "8080:80"
     links:

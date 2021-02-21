@@ -1,49 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import timezone
-from requests import Session
 from unittest import TestCase
+from unittest.mock import patch
 
-from app.config import load_config, ConfigSections, DefaultSectionKeys
-from app.services import get_users, get_commit_frequency , parse_dt
+from requests import Session
+
 from app.database import DbEngine
-
-REPO = 'teradici/deploy'
+from app.services import get_users, get_commit_frequency, parse_dt
+from common import REPO, content, MockResponse, MockRedis
 
 
 class GitHubUserServiceTest(TestCase):
     def setUp(self):
-        self.config = load_config()
-        conn_string = self.config[ConfigSections.DEFAULT][DefaultSectionKeys.CACHE_CONNECTION_STRING]
-        self.db = DbEngine(conn_string)
         self.session = Session()
 
-    def test_get_users(self):
-        key = 'github_users_service__User_teradici/deploy_2019-06-01T00:00:00+0000_2020-05-01T00:00:00+0000'
-        client = self.db.get_session()
+    @patch.object(DbEngine, 'get_session', return_value=MockRedis("redis"))
+    @patch.object(Session, 'get', return_value=MockResponse(200, content))
+    def test_get_users(self, mock_response, mock_redis):
+        key = 'github_users_service__User_teradici/deploy_2020-09-01T00:00:00+0000_2021-12-01T00:00:00+0000'
+        client = mock_redis.return_value
         client.delete(key)
 
-        start = parse_dt('2019-06-01', '%Y-%m-%d').replace(tzinfo=timezone.utc)
-        end = parse_dt('2020-05-01', '%Y-%m-%d').replace(tzinfo=timezone.utc)
-        result = get_users(REPO, start, end, self.db, self.session)
+        start = parse_dt('2020-09-01', '%Y-%m-%d').replace(tzinfo=timezone.utc)
+        end = parse_dt('2021-12-01', '%Y-%m-%d').replace(tzinfo=timezone.utc)
+        result = get_users(start, end, REPO, client, self.session)
 
         val = client.exists(key)
 
         self.assertIsNotNone(result)
-        self.assertGreater(len(result), 0, 'get_users does not work correctly')
+        self.assertEqual(len(result), 2, 'get_users does not work correctly')
         self.assertEqual(val, 1, 'db records should be created')
 
-    def test_get_commit_frequency(self):
-        key = 'github_users_service__CommitFrequency_teradici/deploy_2019-06-01T00:00:00+0000_2020-05-01T00:00:00+0000__5'
-        client = self.db.get_session()
+    @patch.object(DbEngine, 'get_session', return_value=MockRedis("redis"))
+    @patch.object(Session, 'get', return_value=MockResponse(200, content))
+    def test_get_commit_frequency(self, mock_response, mock_redis):
+        key = 'github_users_service__CommitFrequency_teradici/deploy_2020-09-01T00:00:00+0000_2021-12-01T00:00:00+0000__5'
+        client = mock_redis.return_value
         client.delete(key)
 
-        start = parse_dt('2019-06-01', '%Y-%m-%d').replace(tzinfo=timezone.utc)
-        end = parse_dt('2020-05-01', '%Y-%m-%d').replace(tzinfo=timezone.utc)
-        result = get_commit_frequency(REPO, 5, start, end, self.db, self.session)
+        start = parse_dt('2020-09-01', '%Y-%m-%d').replace(tzinfo=timezone.utc)
+        end = parse_dt('2021-12-01', '%Y-%m-%d').replace(tzinfo=timezone.utc)
+        result = get_commit_frequency(5, start, end, REPO, client, self.session)
 
         val = client.exists(key)
 
         self.assertIsNotNone(result)
-        self.assertEqual(len(result), 5, 'get_commit_frequency does not work correctly')
+        self.assertEqual(len(result), 2, 'get_commit_frequency does not work correctly')
+        self.assertEqual(result[0].name, 'user1')
+        self.assertEqual(result[0].commits, 2)
         self.assertEqual(val, 1, 'db records should be created')

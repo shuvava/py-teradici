@@ -37,6 +37,17 @@ def print_response(response):
     logger.info(f'  status_code = {response.status_code}, url= {response.url}')
 
 
+def get_repo(repo: Optional[str] = None) -> str:
+    if repo is None:
+        return CONFIG.default_repo
+    if repo == '':
+        raise ValueError(f'repo name can not be empty')
+
+    if '/' not in repo:
+        raise ValueError(f'repo format is incorrect it should be owner/repo')
+    return repo
+
+
 def init_session():
     if CONFIG.print_log:
         logger.info('session init')
@@ -73,9 +84,15 @@ def get_commit(item: Dict) -> Optional[GitHubCommit]:
     return GitHubCommit(name, email, author_id, date, sha)
 
 
-def get_github_commits(repo: str, start_page: int = None, since: datetime = None, session=None) -> List[GitHubCommit]:
+def get_github_commits(
+    repo: Optional[str] = None,
+    start_page: Optional[int] = None,
+    since: Optional[datetime] = None,
+    session: Optional[Session] = None
+) -> List[GitHubCommit]:
     if start_page is None:
         start_page = 1
+    repo = get_repo(repo)
     _url = f'{__API_BASE_URL__}/{repo}/commits'
     if CONFIG.print_log:
         logger.info('get github commits')
@@ -102,16 +119,20 @@ def get_github_commits(repo: str, start_page: int = None, since: datetime = None
     return commits
 
 
-def get_repo_commits(repo: str, since: datetime = None, session=None) -> List[GitHubCommit]:
+def get_repo_commits(
+    repo: Optional[str] = None,
+    since: Optional[datetime] = None,
+    session: Optional[Session] = None
+) -> List[GitHubCommit]:
     commits = []
     page = 1
-    _contiune = True
+    _continue = True
     if not session:
         session = init_session()
-    while _contiune:
+    while _continue:
         _result = get_github_commits(repo, page, since, session)
         if len(_result) == 0:
-            _contiune = False
+            _continue = False
         page += 1
         commits.extend(_result)
     return commits

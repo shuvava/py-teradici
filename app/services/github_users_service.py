@@ -2,13 +2,13 @@
 #
 # Copyright (c) 2021 Vladimir Shurygin.  All rights reserved.
 #
-from typing import List
+from typing import List, Optional
 from collections import Counter
 from datetime import datetime, timedelta
 from pickle import loads, dumps
 from requests import Session
 
-from .github_api import get_repo_commits, dt_to_str
+from .github_api import get_repo_commits, dt_to_str, get_repo
 from .models import User, CommitFrequency
 from ..database import GitHubCommit, DbEngine
 
@@ -16,6 +16,7 @@ DEFAULT_TIMEOUT = timedelta(minutes=60)
 
 
 def get_key(repo: str, start: datetime, end: datetime, obj_type: str) -> str:
+    repo = get_repo(repo)
     return f'github_users_service__{obj_type}_{repo}_{dt_to_str(start)}_{dt_to_str(end)}'
 
 
@@ -39,17 +40,13 @@ def loads_item(db: DbEngine, key: str):
 
 
 def get_commits(
-    repo: str,
     start: datetime,
     end: datetime,
-    db: DbEngine = None,
-    session: Session = None
+    repo: Optional[str] = None,
+    db: Optional[DbEngine] = None,
+    session: Optional[Session] = None
 ) -> List[GitHubCommit]:
     """getting github commits for repo and date range"""
-    if repo is None or repo == '':
-        raise ValueError(f'repo name can not be empty')
-    if '/' not in repo:
-        raise ValueError(f'repo format is incorrect it should be owner/repo')
     key = get_key(repo, start, end, 'GitHubCommit')
     cache = loads_item(db, key)
     if cache is not None:
@@ -61,17 +58,17 @@ def get_commits(
 
 
 def get_users(
-    repo: str,
     start: datetime,
     end: datetime,
-    db: DbEngine = None,
-    session: Session = None,
+    repo: Optional[str] = None,
+    db: Optional[DbEngine] = None,
+    session: Optional[Session] = None,
 ) -> List[User]:
     """getting users committed for given repo in given time period
 
-    :param repo: repo name
     :param start: lower time border
     :param end: upper time border
+    :param repo: repo name
     :param db: database instance
     :param session: Request context
     """
@@ -79,7 +76,7 @@ def get_users(
     cache = loads_item(db, key)
     if cache is not None:
         return cache
-    commits = get_commits(repo, start, end, db, session)
+    commits = get_commits(start, end, repo, db, session)
     user_set = {}
     for commit in commits:
         if commit.author_name not in user_set:
@@ -91,19 +88,19 @@ def get_users(
 
 
 def get_commit_frequency(
-    repo: str,
     top_n: int,
     start: datetime,
     end: datetime,
-    db: DbEngine = None,
-    session: Session = None,
+    repo: Optional[str] = None,
+    db: Optional[DbEngine] = None,
+    session: Optional[Session] = None,
 ) -> List[CommitFrequency]:
     """getting top 5 most frequent committers for given repo in given time period
 
-    :param repo: repo name
     :param top_n: number of top most common elements
     :param start: lower time border
     :param end: upper time border
+    :param repo: repo name
     :param db: database instance
     :param session: Request context
     """
@@ -112,7 +109,7 @@ def get_commit_frequency(
     cache = loads_item(db, key)
     if cache is not None:
         return cache
-    commits = get_commits(repo, start, end, db, session)
+    commits = get_commits(start, end, repo, db, session)
     users = []
     for commit in commits:
         user = User(commit.author_name, commit.author_email)

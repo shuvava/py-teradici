@@ -1,43 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-from requests import Session
 from unittest import TestCase
+from unittest.mock import patch
 
-from app.services.github_api import get_repo_commits
+from requests import Session
+
 from app.services.github_api.api import get_github_commits
-
-REPO = 'teradici/deploy'
+from common import REPO, content, MockResponse
 
 
 class GitHubApiTest(TestCase):
     def setUp(self):
         self.session = Session()
 
-    def test_get_github_commits(self):
-        result = get_github_commits(REPO, session=self.session)
+    @patch.object(Session, 'get', return_value=MockResponse(200, content))
+    def test_get_github_commits_successful(self, mock_response):
+        result = get_github_commits(REPO)
 
         self.assertIsNotNone(result)
-        self.assertEqual(len(result), 100, 'commits not populated correctly')
+        self.assertEqual(len(result), 3, 'commits not populated correctly')
 
-    def test_get_github_commits_since_future(self):
+    @patch.object(Session, 'get', return_value=MockResponse(500, "some string error"))
+    def test_get_github_commits_error(self, mock_response):
         since = datetime.utcnow() + timedelta(days=1)
         result = get_github_commits(REPO, since=since, session=self.session)
 
         self.assertIsNotNone(result)
-        self.assertEqual(len(result), 0, 'date filter does not work correctly')
+        self.assertEqual(len(result), 0)
 
-    def test_get_github_commits_since_past(self):
-        since = datetime.utcnow() - timedelta(days=100)
-        result = get_github_commits(REPO, since=since, session=self.session)
-
-        self.assertIsNotNone(result)
-        self.assertGreater(len(result), 0, 'date filter does not work correctly(lower bound)')
-        self.assertLess(len(result), 100, 'date filter does not work correctly(upper bound)')
-
-    def test_get_all_commits(self):
-        since = datetime.utcnow() - timedelta(days=720)
-        result = get_repo_commits(REPO, since=since, session=self.session)
-
-        self.assertIsNotNone(result)
-        self.assertGreater(len(result), 100, 'commits not populated correctly ')

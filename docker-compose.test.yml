@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  unit-test:
+    build:
+      dockerfile: Dockerfile.Tests
+      context: .
+    hostname: unit-test
