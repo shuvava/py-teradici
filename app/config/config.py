@@ -6,6 +6,7 @@ APP_NAME = 'webapp'
 
 class ConfigSections:
     DEFAULT = 'DEFAULT'
+    GITHUB = 'GITHUB'
 
 
 class DefaultSectionKeys:
