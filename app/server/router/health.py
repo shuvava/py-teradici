@@ -21,7 +21,7 @@ async def get_version():
 async def check_health():
     db = router.db.get_session()
     try:
-        db.execute(text("SELECT 1"))
+        res = db.echo("ping")
     except:
         logger.error("Unexpected error:", sys.exc_info()[0])
         raise HTTPException(status_code=503, detail='db connection error')

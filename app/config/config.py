@@ -17,7 +17,7 @@ class DefaultSectionKeys:
 
 def init_default(config):
     config[ConfigSections.DEFAULT] = {
-        DefaultSectionKeys.CACHE_CONNECTION_STRING: 'redis',
+        DefaultSectionKeys.CACHE_CONNECTION_STRING: 'redis://127.0.0.1:6379',
         DefaultSectionKeys.NAME: 'GitHub API Client App',
         DefaultSectionKeys.VERSION: '0.1',
         DefaultSectionKeys.API_PREFIX: '/api'
