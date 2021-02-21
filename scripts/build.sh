@@ -15,5 +15,6 @@ set -a
 set +a
 # set variables
 IMAGE_TAG="$("$DIR"/scripts/git-version.sh)"
+echo "APP_VERSION=${IMAGE_TAG}"
 
 docker-compose build --parallel  --build-arg APP_VERSION="$IMAGE_TAG"

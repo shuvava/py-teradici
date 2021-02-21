@@ -67,15 +67,15 @@ to run unit-tests
 
 1. build test container 
 
-```shell
-  docker-compose -f docker-compose.test.yml build
-```
+    ```shell
+      docker-compose -f docker-compose.test.yml build
+    ```
 
 1. run unit-test
 
-```shell
-docker-compose -f docker-compose.test.yml up
-```
+    ```shell
+    docker-compose -f docker-compose.test.yml up
+    ```
 
 #### Run in pipenv
 
