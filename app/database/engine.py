@@ -44,6 +44,8 @@ class DbEngine(metaclass=SingletonMeta):
 
     def __init__(self, conn_string: str):
         self.conn_string = conn_string
+        self.db = create_engine(self.conn_string)
 
     def get_session(self) -> Redis:
-        return create_engine(self.conn_string)
+        client = self.db.client()
+        return client

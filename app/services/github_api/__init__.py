@@ -3,8 +3,10 @@
 github.com api implementation
 """
 from .config import ApiConfig
-from .api import get_github_commits
+from .api import get_repo_commits
+from .utils import dt_to_str, parse_dt
 
 __all__ = [
-    get_github_commits
+    dt_to_str, parse_dt,
+    get_repo_commits,
 ]

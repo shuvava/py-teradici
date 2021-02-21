@@ -3,7 +3,6 @@ import sys
 
 from fastapi import APIRouter, HTTPException
 from fastapi.logger import logger
-from sqlalchemy import text
 
 router = APIRouter()
 
@@ -21,7 +20,7 @@ async def get_version():
 async def check_health():
     db = router.db.get_session()
     try:
-        res = db.echo("ping")
+        db.check_health()
     except:
         logger.error("Unexpected error:", sys.exc_info()[0])
         raise HTTPException(status_code=503, detail='db connection error')

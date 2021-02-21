@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from .engine import DbEngine
-from .models import GitHubAuthor, GitHubCommit
+from .models import GitHubCommit
 
 
 __all__ = [
     DbEngine,
-    GitHubAuthor, GitHubCommit
+    GitHubCommit
 ]
