@@ -5,7 +5,7 @@ from fastapi.openapi.utils import get_openapi
 
 from app.config import load_config, DefaultSectionKeys, ConfigSections
 from app.database import DbEngine
-from .router import health
+from .router import health, users, most_frequent
 
 
 def custom_openapi(server):
@@ -41,6 +41,18 @@ def get_app() -> FastAPI:
     health.router.db = db
     server.include_router(
         health.router,
+    )
+
+    users.router.db = db
+    server.include_router(
+        users.router,
+        #prefix=api_prefix,
+    )
+
+    most_frequent.router.db = db
+    server.include_router(
+        most_frequent.router,
+        #prefix=api_prefix,
     )
 
     logger.info('****************** Starting Server *****************')

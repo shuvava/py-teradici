@@ -59,6 +59,29 @@ to run app in docker
 1. create docker image using [build command](#DockerBuild) 
 1. run bash script `./scripts/run.sh`
 
+### Unit Test
+
+#### Run in Docker
+
+to run unit-tests
+
+1. build test container 
+
+```shell
+  docker-compose -f docker-compose.test.yml build
+```
+
+1. run unit-test
+
+```shell
+docker-compose -f docker-compose.test.yml up
+```
+
+#### Run in pipenv
+
+1. run `pipenv shell`
+1. run `./tests/run.sh`
+
 ## Publishing
 
 run bash script `./scripts/publish.sh`

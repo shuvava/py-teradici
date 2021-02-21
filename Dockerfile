@@ -15,4 +15,4 @@ RUN echo $APP_VERSION > ./app/version.txt
 ENV WEBAPP__DEFAULT__CACHE_CONNECTION_STRING=redis
 ENV APP_PORT=$APP_PORT
 
-ENTRYPOINT [ "./run.sh" ]
+CMD [ "./run.sh" ]

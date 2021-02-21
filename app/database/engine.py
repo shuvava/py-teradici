@@ -36,15 +36,16 @@ class SingletonMeta(type):
         return cls._instance
 
 
-def create_engine(conn_string):
-    return Redis(conn_string)
+def create_engine(conn_string: str) -> Redis:
+    return Redis.from_url(conn_string)
 
 
 class DbEngine(metaclass=SingletonMeta):
 
-    def __init__(self, conn_string):
-        self.db = create_engine(conn_string)
-        self.session = self.get_session()
+    def __init__(self, conn_string: str):
+        self.conn_string = conn_string
+        self.db = create_engine(self.conn_string)
 
-    def get_session(self):
-        return self.db.client()
+    def get_session(self) -> Redis:
+        client = self.db.client()
+        return client
