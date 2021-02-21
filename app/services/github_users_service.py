@@ -107,7 +107,8 @@ def get_commit_frequency(
     :param db: database instance
     :param session: Request context
     """
-    key = get_key(repo, start, end, 'User')
+    key = get_key(repo, start, end, 'CommitFrequency')
+    key = f'{key}__{top_n}'
     cache = loads_item(db, key)
     if cache is not None:
         return cache
@@ -118,8 +119,9 @@ def get_commit_frequency(
         users.append(user)
     counter = Counter(users)
     top_users = counter.most_common(top_n)
+    result = []
     for item in top_users:
         cf = CommitFrequency(item[0].name, item[1])
-        users.append(cf)
-    dumps_item(db, key, users)
-    return users
+        result.append(cf)
+    dumps_item(db, key, result)
+    return result
