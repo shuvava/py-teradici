@@ -2,7 +2,7 @@
 
 ## Usage
 
-1. [build docker file](#Docker Build) 
+1. [build docker file](#Docker-Build) 
 1. [run docker compose](#Run)
 1. open url `http://127.0.0.1:8080/docs#/`
 
@@ -56,7 +56,7 @@
 ### Run
 
 to run app in docker
-1. create docker image using [build command](#DockerBuild) 
+1. create docker image using [build command](#Docker-Build) 
 1. run bash script `./scripts/run.sh`
 
 ### Unit Test
