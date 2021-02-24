@@ -53,7 +53,8 @@ def get_commits(
         return cache
     all_commits = get_repo_commits(repo, start, session=session)
     commits = [commit for commit in all_commits if commit.date <= end]
-    dumps_item(db, key, commits)
+    if len(commits) > 0:  # cache only on success
+        dumps_item(db, key, commits)
     return commits
 
 
@@ -83,7 +84,8 @@ def get_users(
             user = User(commit.author_name, commit.author_email)
             user_set[user.name] = user
     users = list(user_set.values())
-    dumps_item(db, key, users)
+    if len(users) > 0:  # cache only on success
+        dumps_item(db, key, users)
     return users
 
 
@@ -120,5 +122,6 @@ def get_commit_frequency(
     for item in top_users:
         cf = CommitFrequency(item[0].name, item[1])
         result.append(cf)
-    dumps_item(db, key, result)
+    if len(result) > 0:  # cache only on success
+        dumps_item(db, key, result)
     return result
