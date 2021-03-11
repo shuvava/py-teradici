@@ -2,11 +2,13 @@
 #
 # Copyright (c) 2021 Vladimir Shurygin.  All rights reserved.
 #
+from sys import exc_info
 from typing import List, Optional
 from collections import Counter
 from datetime import datetime, timedelta
 from pickle import loads, dumps
 from requests import Session
+from fastapi.logger import logger
 
 from .github_api import get_repo_commits, dt_to_str, get_repo
 from .models import User, CommitFrequency
@@ -23,20 +25,29 @@ def get_key(repo: str, start: datetime, end: datetime, obj_type: str) -> str:
 def dumps_item(db: DbEngine, key: str, values: List[any]):
     if db is None:
         return
-    vals = dumps(values)
-    client = db.get_session()
-    client.set(key, vals, ex=DEFAULT_TIMEOUT)
+    try:
+        vals = dumps(values)
+        client = db.get_session()
+        client.set(key, vals, ex=DEFAULT_TIMEOUT)
+    except Exception:  # ignore all exceptions
+        logger.error("Unexpected error:", exc_info()[0])
+        pass
+
 
 
 def loads_item(db: DbEngine, key: str):
     if db is None:
         return None
-    client = db.get_session()
-    vals = client.get(key)
-    if vals is None:
+    try:
+        client = db.get_session()
+        vals = client.get(key)
+        if vals is None:
+            return None
+        values = loads(vals)
+        return values
+    except Exception:  # ignore all exceptions
+        logger.error("Unexpected error:", exc_info()[0])
         return None
-    values = loads(vals)
-    return values
 
 
 def get_commits(
